@@ -1,9 +1,9 @@
 import confetti from 'canvas-confetti';
 
 /**
- * Fires a celebratory pixel/birthday confetti burst across the canvas.
+ * Fires a celebratory pixel confetti burst across the canvas.
  */
-export function triggerBirthdayConfetti() {
+export function triggerCelebrationConfetti() {
   try {
     // Left burst
     confetti({
@@ -42,6 +42,9 @@ export function triggerBirthdayConfetti() {
     console.warn('Confetti trigger skipped:', err);
   }
 }
+
+// Backward compatibility alias
+export const triggerBirthdayConfetti = triggerCelebrationConfetti;
 
 /**
  * Quick mini sparkle at a specific viewport percentage (e.g., button click).

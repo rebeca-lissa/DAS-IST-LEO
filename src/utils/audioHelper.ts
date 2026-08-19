@@ -94,7 +94,7 @@ class SoundManager {
     }
   }
 
-  // 2. Play 8-bit Level-Up / Birthday Celebration Fanfare
+  // 2. Play 8-bit Level-Up Celebration Fanfare
   public playLevelUpFanfare() {
     if (this.muted) return;
     try {

@@ -11,7 +11,7 @@ import { Footer } from './components/Footer';
 import { INITIAL_MEMORIES, INITIAL_PROMPT_WAVES, INITIAL_TAGS } from './data/initialData';
 import { MemoryItem, PromptWave, TagInfo, CanvasViewMode } from './types';
 import { soundManager } from './utils/audioHelper';
-import { triggerBirthdayConfetti, triggerMiniSparkle } from './utils/confettiHelper';
+import { triggerCelebrationConfetti, triggerMiniSparkle } from './utils/confettiHelper';
 
 const STORAGE_MEMORIES_KEY = 'das_ist_leo_civil_monkey_memories_v2';
 const STORAGE_PROMPTS_KEY = 'das_ist_leo_civil_monkey_prompts_v2';
@@ -144,7 +144,7 @@ export default function App() {
 
     // Celebratory effects on planting a memory!
     soundManager.playLevelUpFanfare();
-    triggerBirthdayConfetti();
+    triggerCelebrationConfetti();
   };
 
   const handleAddNewPrompt = (newPromptData: Omit<PromptWave, 'id' | 'createdAt' | 'responsesCount'>) => {

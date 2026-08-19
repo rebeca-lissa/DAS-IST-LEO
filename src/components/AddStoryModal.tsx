@@ -73,7 +73,6 @@ export const AddStoryModal: React.FC<AddStoryModalProps> = ({
       const result = await recorderRef.current.stopRecording();
       setIsRecording(false);
       
-      // Convert blob to Base64 data URL for durable storage
       const reader = new FileReader();
       reader.onloadend = () => {
         if (reader.result) {
@@ -84,14 +83,13 @@ export const AddStoryModal: React.FC<AddStoryModalProps> = ({
     }
   };
 
-  // Compress and resize image client-side to ensure lightweight localStorage persistence
   const processAndSetImageFile = (file: File) => {
     setIsProcessingImage(true);
     const reader = new FileReader();
     reader.onload = (event) => {
       const img = new Image();
       img.onload = () => {
-        const maxDimension = 1000;
+        const maxDimension = 900;
         let width = img.width;
         let height = img.height;
 
@@ -111,7 +109,7 @@ export const AddStoryModal: React.FC<AddStoryModalProps> = ({
         const ctx = canvas.getContext('2d');
         if (ctx) {
           ctx.drawImage(img, 0, 0, width, height);
-          const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.82);
+          const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.8);
           setMediaUrl(compressedDataUrl);
         } else {
           setMediaUrl(event.target?.result as string);
@@ -150,14 +148,12 @@ export const AddStoryModal: React.FC<AddStoryModalProps> = ({
 
     soundManager.playLevelUpFanfare();
 
-    // Parse custom tags
     const parsedTags = tagsInput
       .split(',')
       .map((t) => t.trim())
       .filter((t) => t.length > 0)
       .map((t) => (t.startsWith('#') ? t : `#${t}`));
 
-    // If associated with a prompt wave, include that prompt's tag
     if (selectedPromptId) {
       const p = prompts.find((pr) => pr.id === selectedPromptId);
       if (p && !parsedTags.includes(p.tag)) {
@@ -166,16 +162,15 @@ export const AddStoryModal: React.FC<AddStoryModalProps> = ({
     }
 
     if (parsedTags.length === 0) {
-      parsedTags.push('#LeoBirthday');
+      parsedTags.push('#Leo');
     }
 
-    // Assign dynamic non-overlapping coordinate
     const cols = 4;
     const row = Math.floor(currentMemoriesCount / cols);
     const col = currentMemoriesCount % cols;
-    const posX = 150 + col * 360 + (Math.random() * 80 - 40);
-    const posY = 150 + row * 340 + (Math.random() * 80 - 40);
-    const rotation = Math.round(Math.random() * 10 - 5);
+    const posX = 120 + col * 320 + (Math.random() * 60 - 30);
+    const posY = 120 + row * 300 + (Math.random() * 60 - 30);
+    const rotation = Math.round(Math.random() * 8 - 4);
 
     onAddMemory({
       author: author.trim(),
@@ -200,20 +195,20 @@ export const AddStoryModal: React.FC<AddStoryModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#0c0917]/90 overflow-y-auto animate-fadeIn select-none font-pixel">
-      <div className="relative w-full max-w-xl pixel-box p-5 md:p-6 my-6 space-y-4 shadow-2xl border-2 border-[#f59e0b]">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-[#0c0917]/90 overflow-y-auto animate-fadeIn select-none font-pixel">
+      <div className="relative w-full max-w-lg pixel-box p-4 sm:p-5 my-4 space-y-3.5 shadow-2xl border-2 border-[#f59e0b] max-h-[92vh] overflow-y-auto">
         
         {/* MODAL HEADER */}
-        <div className="flex items-center justify-between border-b-2 border-[#3e2e5c] pb-3">
+        <div className="flex items-center justify-between border-b border-[#3e2e5c] pb-2.5">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-[#451a03] border-2 border-[#f59e0b] flex items-center justify-center text-[#ffd285] text-sm">
+            <div className="w-7 h-7 bg-[#451a03] border border-[#f59e0b] flex items-center justify-center text-[#ffd285] text-xs">
               ✨
             </div>
             <div>
-              <h2 className="text-base md:text-lg font-bold text-[#ffd285] uppercase">
+              <h2 className="text-sm sm:text-base font-bold text-[#ffd285] uppercase">
                 Add a Story for Leo
               </h2>
-              <p className="text-[11px] text-[#cbd5e1]">
+              <p className="text-[10px] text-[#cbd5e1]">
                 Leave your photo, voice note, letter, or message on Leo's canvas
               </p>
             </div>
@@ -221,14 +216,14 @@ export const AddStoryModal: React.FC<AddStoryModalProps> = ({
 
           <button
             onClick={onClose}
-            className="p-1.5 bg-[#181328] border-2 border-[#3e2e5c] text-[#cbd5e1] hover:text-white"
+            className="p-1 bg-[#181328] border border-[#3e2e5c] text-[#cbd5e1] hover:text-white"
           >
-            <X className="w-4 h-4" />
+            <X className="w-3.5 h-3.5" />
           </button>
         </div>
 
         {/* MEMORY TYPE SELECTOR TABS */}
-        <div className="grid grid-cols-4 gap-1 text-xs">
+        <div className="grid grid-cols-4 gap-1 text-[11px]">
           {[
             { id: 'polaroid', label: '📸 Photo', icon: Camera },
             { id: 'audio', label: '🎙️ Voice', icon: Mic },
@@ -244,9 +239,9 @@ export const AddStoryModal: React.FC<AddStoryModalProps> = ({
                   soundManager.playMemoryChime(1.1);
                   setType(item.id as MemoryType);
                 }}
-                className={`py-2 px-1 border-2 font-bold flex flex-col items-center gap-1 transition-all ${
+                className={`py-1.5 px-1 border font-bold flex flex-col items-center gap-0.5 transition-all ${
                   isSelected
-                    ? 'bg-[#f59e0b] text-[#1c120c] border-[#fbbf24] shadow-[2px_2px_0_#451a03]'
+                    ? 'bg-[#f59e0b] text-[#1c120c] border-[#fbbf24] shadow-[1px_1px_0_#451a03]'
                     : 'bg-[#100d1c] text-[#cbd5e1] hover:text-white border-[#3e2e5c]'
                 }`}
               >
@@ -257,12 +252,12 @@ export const AddStoryModal: React.FC<AddStoryModalProps> = ({
         </div>
 
         {/* FORM BODY */}
-        <form onSubmit={handleSubmit} className="space-y-3 text-xs">
+        <form onSubmit={handleSubmit} className="space-y-2.5 text-xs">
           
           {/* AUTHOR & RELATION */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
             <div>
-              <label className="block text-[11px] font-bold text-[#cbd5e1] mb-1">
+              <label className="block text-[10px] font-bold text-[#cbd5e1] mb-0.5">
                 Your Name *
               </label>
               <input
@@ -271,27 +266,27 @@ export const AddStoryModal: React.FC<AddStoryModalProps> = ({
                 value={author}
                 onChange={(e) => setAuthor(e.target.value)}
                 placeholder="e.g. Maya"
-                className="w-full bg-[#100d1c] border-2 border-[#3e2e5c] px-3 py-1.5 text-xs text-[#f1f5f9] placeholder-[#64748b] focus:outline-none focus:border-[#f59e0b]"
+                className="w-full bg-[#100d1c] border border-[#3e2e5c] px-2.5 py-1 text-xs text-[#f1f5f9] placeholder-[#64748b] focus:outline-none focus:border-[#f59e0b]"
               />
             </div>
             <div>
-              <label className="block text-[11px] font-bold text-[#cbd5e1] mb-1">
+              <label className="block text-[10px] font-bold text-[#cbd5e1] mb-0.5">
                 How do you know Leo?
               </label>
               <input
                 type="text"
                 value={authorRelation}
                 onChange={(e) => setAuthorRelation(e.target.value)}
-                placeholder="e.g. Friend / Colleague / Flatmate"
-                className="w-full bg-[#100d1c] border-2 border-[#3e2e5c] px-3 py-1.5 text-xs text-[#f1f5f9] placeholder-[#64748b] focus:outline-none focus:border-[#f59e0b]"
+                placeholder="e.g. Friend / Collaborator"
+                className="w-full bg-[#100d1c] border border-[#3e2e5c] px-2.5 py-1 text-xs text-[#f1f5f9] placeholder-[#64748b] focus:outline-none focus:border-[#f59e0b]"
               />
             </div>
           </div>
 
           {/* TITLE & ASSOCIATED PROMPT */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
             <div>
-              <label className="block text-[11px] font-bold text-[#cbd5e1] mb-1">
+              <label className="block text-[10px] font-bold text-[#cbd5e1] mb-0.5">
                 Story Title / Caption
               </label>
               <input
@@ -299,54 +294,54 @@ export const AddStoryModal: React.FC<AddStoryModalProps> = ({
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder="e.g. Hiking with Leo"
-                className="w-full bg-[#100d1c] border-2 border-[#3e2e5c] px-3 py-1.5 text-xs text-[#f1f5f9] placeholder-[#64748b] focus:outline-none focus:border-[#f59e0b]"
+                className="w-full bg-[#100d1c] border border-[#3e2e5c] px-2.5 py-1 text-xs text-[#f1f5f9] placeholder-[#64748b] focus:outline-none focus:border-[#f59e0b]"
               />
             </div>
 
             <div>
-              <label className="block text-[11px] font-bold text-[#cbd5e1] mb-1">
+              <label className="block text-[10px] font-bold text-[#cbd5e1] mb-0.5">
                 Link to Question / Prompt
               </label>
               <select
                 value={selectedPromptId}
                 onChange={(e) => setSelectedPromptId(e.target.value)}
-                className="w-full bg-[#100d1c] border-2 border-[#3e2e5c] px-3 py-1.5 text-xs text-[#f1f5f9] focus:outline-none focus:border-[#f59e0b]"
+                className="w-full bg-[#100d1c] border border-[#3e2e5c] px-2.5 py-1 text-xs text-[#f1f5f9] focus:outline-none focus:border-[#f59e0b]"
               >
                 <option value="">-- General Story --</option>
                 {prompts.map((p) => (
                   <option key={p.id} value={p.id}>
-                    {p.tag} ({p.question.slice(0, 30)}...)
+                    {p.tag} ({p.question.slice(0, 24)}...)
                   </option>
                 ))}
               </select>
             </div>
           </div>
 
-          {/* PHOTO UPLOAD OR AUDIO RECORDER BASED ON TYPE */}
+          {/* PHOTO UPLOAD OR AUDIO RECORDER */}
           {type === 'polaroid' && (
             <div 
               onDragOver={(e) => e.preventDefault()}
               onDrop={handleDrop}
-              className="p-3 bg-[#100d1c] border-2 border-[#3e2e5c] space-y-2"
+              className="p-2.5 bg-[#100d1c] border border-[#3e2e5c] space-y-1.5"
             >
-              <label className="block text-[11px] font-bold text-[#ffd285]">
-                📸 Upload Photo or Enter Image URL (Drag & drop supported):
+              <label className="block text-[10px] font-bold text-[#ffd285]">
+                📸 Upload Photo or Enter Image URL:
               </label>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1.5">
                 <input
                   type="text"
                   value={mediaUrl}
                   onChange={(e) => setMediaUrl(e.target.value)}
-                  placeholder="Paste image URL or choose file"
-                  className="flex-1 bg-[#181328] border-2 border-[#3e2e5c] px-3 py-1 text-xs text-[#f1f5f9] placeholder-[#64748b] focus:outline-none focus:border-[#f59e0b]"
+                  placeholder="Paste URL or choose image"
+                  className="flex-1 bg-[#181328] border border-[#3e2e5c] px-2 py-1 text-[11px] text-[#f1f5f9] placeholder-[#64748b] focus:outline-none focus:border-[#f59e0b]"
                 />
                 <button
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
-                  className="pixel-btn px-3 py-1 bg-[#291e45] text-[#ffd285] hover:bg-[#451a03] text-xs flex items-center gap-1 font-bold"
+                  className="pixel-btn px-2.5 py-1 bg-[#291e45] text-[#ffd285] hover:bg-[#451a03] text-[11px] flex items-center gap-1 font-bold shrink-0"
                 >
-                  <Upload className="w-3.5 h-3.5" />
-                  <span>Choose File</span>
+                  <Upload className="w-3 h-3" />
+                  <span>Choose</span>
                 </button>
                 <input
                   type="file"
@@ -358,16 +353,16 @@ export const AddStoryModal: React.FC<AddStoryModalProps> = ({
               </div>
 
               {isProcessingImage && (
-                <p className="text-[10px] text-[#fbbf24] animate-pulse">Optimizing photo for canvas...</p>
+                <p className="text-[9px] text-[#fbbf24] animate-pulse">Optimizing photo for canvas...</p>
               )}
 
               {mediaUrl && (
-                <div className="flex items-center gap-2 pt-1">
-                  <div className="w-24 h-16 border-2 border-[#f59e0b] overflow-hidden bg-black">
+                <div className="flex items-center gap-2 pt-0.5">
+                  <div className="w-20 h-14 border border-[#f59e0b] overflow-hidden bg-black">
                     <img src={mediaUrl} alt="Preview" className="w-full h-full object-cover pixelated" />
                   </div>
-                  <span className="text-[10px] text-[#34d399] flex items-center gap-1">
-                    <Check className="w-3.5 h-3.5" /> Photo attached!
+                  <span className="text-[9px] text-[#34d399] flex items-center gap-1">
+                    <Check className="w-3 h-3" /> Photo ready!
                   </span>
                 </div>
               )}
@@ -375,34 +370,34 @@ export const AddStoryModal: React.FC<AddStoryModalProps> = ({
           )}
 
           {type === 'audio' && (
-            <div className="p-3 bg-[#064e3b] border-2 border-[#34d399] space-y-2">
-              <label className="block text-[11px] font-bold text-[#ecfdf5]">
+            <div className="p-2.5 bg-[#064e3b] border border-[#34d399] space-y-1.5">
+              <label className="block text-[10px] font-bold text-[#ecfdf5]">
                 🎙️ Record Voice Note:
               </label>
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2">
                 {!isRecording ? (
                   <button
                     type="button"
                     onClick={handleStartRecording}
-                    className="pixel-btn px-3 py-1.5 bg-[#f43f5e] text-white hover:bg-[#fb7185] font-bold text-xs flex items-center gap-1.5"
+                    className="pixel-btn px-2.5 py-1 bg-[#f43f5e] text-white hover:bg-[#fb7185] font-bold text-[11px] flex items-center gap-1"
                   >
-                    <Mic className="w-3.5 h-3.5" />
-                    <span>{recordedAudioUrl ? 'Re-record Voice Note' : 'Record Voice Note'}</span>
+                    <Mic className="w-3 h-3" />
+                    <span>{recordedAudioUrl ? 'Re-record Note' : 'Record Voice Note'}</span>
                   </button>
                 ) : (
                   <button
                     type="button"
                     onClick={handleStopRecording}
-                    className="pixel-btn px-3 py-1.5 bg-[#ef4444] text-white font-bold text-xs flex items-center gap-1.5 animate-pulse"
+                    className="pixel-btn px-2.5 py-1 bg-[#ef4444] text-white font-bold text-[11px] flex items-center gap-1 animate-pulse"
                   >
-                    <Square className="w-3.5 h-3.5 fill-current" />
-                    <span>Stop Recording ({recordingDuration}s)</span>
+                    <Square className="w-3 h-3 fill-current" />
+                    <span>Stop ({recordingDuration}s)</span>
                   </button>
                 )}
 
                 {recordedAudioUrl && !isRecording && (
-                  <span className="text-[10px] text-[#a7f3d0] flex items-center gap-1">
-                    <Check className="w-3.5 h-3.5" /> Voice message saved! ({recordingDuration}s)
+                  <span className="text-[9px] text-[#a7f3d0] flex items-center gap-1">
+                    <Check className="w-3 h-3" /> Saved! ({recordingDuration}s)
                   </span>
                 )}
               </div>
@@ -411,7 +406,7 @@ export const AddStoryModal: React.FC<AddStoryModalProps> = ({
 
           {/* MAIN MESSAGE CONTENT */}
           <div>
-            <label className="block text-[11px] font-bold text-[#cbd5e1] mb-1">
+            <label className="block text-[10px] font-bold text-[#cbd5e1] mb-0.5">
               Your Message for Leo *
             </label>
             <textarea
@@ -419,27 +414,27 @@ export const AddStoryModal: React.FC<AddStoryModalProps> = ({
               rows={3}
               value={content}
               onChange={(e) => setContent(e.target.value)}
-              placeholder="Tell Leo why he is such a special friend, share a favorite memory, or wish him a great birthday..."
-              className="w-full bg-[#100d1c] border-2 border-[#3e2e5c] p-2.5 text-xs text-[#f1f5f9] placeholder-[#64748b] focus:outline-none focus:border-[#f59e0b] leading-relaxed"
+              placeholder="Tell Leo why he is such a special friend, share a favorite memory, or write a note for him..."
+              className="w-full bg-[#100d1c] border border-[#3e2e5c] p-2 text-xs text-[#f1f5f9] placeholder-[#64748b] focus:outline-none focus:border-[#f59e0b] leading-relaxed"
             />
           </div>
 
           {/* LOCATION & DATE */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
             <div>
-              <label className="block text-[11px] font-bold text-[#cbd5e1] mb-1">
+              <label className="block text-[10px] font-bold text-[#cbd5e1] mb-0.5">
                 Location (Optional)
               </label>
               <input
                 type="text"
                 value={location}
                 onChange={(e) => setLocation(e.target.value)}
-                placeholder="e.g. Vienna / Berlin / Mountain summit"
-                className="w-full bg-[#100d1c] border-2 border-[#3e2e5c] px-3 py-1.5 text-xs text-[#f1f5f9] placeholder-[#64748b] focus:outline-none focus:border-[#f59e0b]"
+                placeholder="e.g. Vienna / Berlin"
+                className="w-full bg-[#100d1c] border border-[#3e2e5c] px-2.5 py-1 text-xs text-[#f1f5f9] placeholder-[#64748b] focus:outline-none focus:border-[#f59e0b]"
               />
             </div>
             <div>
-              <label className="block text-[11px] font-bold text-[#cbd5e1] mb-1">
+              <label className="block text-[10px] font-bold text-[#cbd5e1] mb-0.5">
                 Year / Date (Optional)
               </label>
               <input
@@ -447,40 +442,40 @@ export const AddStoryModal: React.FC<AddStoryModalProps> = ({
                 value={date}
                 onChange={(e) => setDate(e.target.value)}
                 placeholder="e.g. 2024"
-                className="w-full bg-[#100d1c] border-2 border-[#3e2e5c] px-3 py-1.5 text-xs text-[#f1f5f9] placeholder-[#64748b] focus:outline-none focus:border-[#f59e0b]"
+                className="w-full bg-[#100d1c] border border-[#3e2e5c] px-2.5 py-1 text-xs text-[#f1f5f9] placeholder-[#64748b] focus:outline-none focus:border-[#f59e0b]"
               />
             </div>
           </div>
 
           {/* TAGS */}
           <div>
-            <label className="block text-[11px] font-bold text-[#cbd5e1] mb-1">
+            <label className="block text-[10px] font-bold text-[#cbd5e1] mb-0.5">
               Tags (comma separated)
             </label>
             <input
               type="text"
               value={tagsInput}
               onChange={(e) => setTagsInput(e.target.value)}
-              placeholder="#Leo, #Travel, #Adventures"
-              className="w-full bg-[#100d1c] border-2 border-[#3e2e5c] px-3 py-1.5 text-xs text-[#f1f5f9] placeholder-[#64748b] focus:outline-none focus:border-[#f59e0b]"
+              placeholder="#Leo, #Travel, #Music"
+              className="w-full bg-[#100d1c] border border-[#3e2e5c] px-2.5 py-1 text-xs text-[#f1f5f9] placeholder-[#64748b] focus:outline-none focus:border-[#f59e0b]"
             />
           </div>
 
           {/* SUBMIT BUTTONS */}
-          <div className="flex items-center justify-end gap-2 pt-3 border-t-2 border-[#3e2e5c]">
+          <div className="flex items-center justify-end gap-2 pt-2 border-t border-[#3e2e5c]">
             <button
               type="button"
               onClick={onClose}
-              className="px-3 py-1.5 text-xs text-[#cbd5e1] hover:text-white"
+              className="px-2.5 py-1 text-xs text-[#cbd5e1] hover:text-white"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="pixel-btn px-5 py-2 bg-[#f59e0b] hover:bg-[#fbbf24] text-[#1c120c] font-bold text-xs flex items-center gap-1.5"
+              className="pixel-btn px-4 py-1.5 bg-[#f59e0b] hover:bg-[#fbbf24] text-[#1c120c] font-bold text-xs flex items-center gap-1"
             >
-              <Sparkles className="w-4 h-4" />
-              <span>Add to Canvas</span>
+              <Sparkles className="w-3.5 h-3.5" />
+              <span>Plant on Canvas</span>
             </button>
           </div>
 

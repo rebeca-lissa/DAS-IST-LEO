@@ -1,124 +1,143 @@
 import React from 'react';
-import { Sparkles, Heart, PlusCircle, Volume2, VolumeX, ArrowRight, ExternalLink } from 'lucide-react';
-import { triggerBirthdayConfetti } from '../utils/confettiHelper';
+import { 
+  Sparkles, 
+  Map, 
+  Heart, 
+  Users, 
+  ExternalLink,
+  Compass,
+  X,
+  Plus
+} from 'lucide-react';
 import { soundManager } from '../utils/audioHelper';
+import { triggerCelebrationConfetti } from '../utils/confettiHelper';
 
 interface SplashScreenProps {
   isOpen: boolean;
   onClose: () => void;
-  onOpenAddStory: () => void;
-  isMuted: boolean;
-  onToggleSound: () => void;
-  memoriesCount: number;
+  onEnter?: () => void;
+  onOpenAddStory?: () => void;
+  isMuted?: boolean;
+  onToggleSound?: () => void;
+  memoriesCount?: number;
 }
 
-export const SplashScreen: React.FC<SplashScreenProps> = ({
-  isOpen,
-  onClose,
+export const SplashScreen: React.FC<SplashScreenProps> = ({ 
+  isOpen, 
+  onClose, 
+  onEnter,
   onOpenAddStory,
-  isMuted,
-  onToggleSound,
-  memoriesCount,
+  memoriesCount 
 }) => {
   if (!isOpen) return null;
 
   const handleEnter = () => {
     soundManager.playLevelUpFanfare();
-    triggerBirthdayConfetti();
-    onClose();
+    triggerCelebrationConfetti();
+    if (onEnter) onEnter();
+    if (onClose) onClose();
   };
 
-  const handleAddStoryDirect = () => {
-    soundManager.playMemoryChime(1.4);
-    triggerBirthdayConfetti();
-    onClose();
-    onOpenAddStory();
+  const handleAddStory = () => {
+    soundManager.playMemoryChime(1.2);
+    if (onClose) onClose();
+    if (onOpenAddStory) onOpenAddStory();
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#0a0713]/95 backdrop-blur-sm select-none font-pixel animate-fadeIn">
-      <div className="relative w-full max-w-xl pixel-box p-6 md:p-8 space-y-6 text-center shadow-2xl border-4 border-[#f59e0b]">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-3 sm:p-4 select-none font-pixel animate-fadeIn overflow-y-auto">
+      
+      {/* 16-BIT RETRO DIALOGUE BOX */}
+      <div className="relative w-full max-w-lg pixel-box p-4 sm:p-6 text-center space-y-3.5 border-2 border-[#f59e0b] shadow-2xl my-auto">
         
-        {/* TOP CORNER SOUND TOGGLE */}
-        <div className="absolute top-4 right-4 flex items-center gap-2">
-          <button
-            onClick={onToggleSound}
-            title={isMuted ? 'Enable Sound' : 'Mute Sound'}
-            className="p-1.5 bg-[#181328] hover:bg-[#282142] border-2 border-[#3e2e5c] text-[#ffd285] text-[10px] flex items-center gap-1.5 transition-colors"
-          >
-            {isMuted ? <VolumeX className="w-3.5 h-3.5 text-stone-400" /> : <Volume2 className="w-3.5 h-3.5 text-[#34d399]" />}
-            <span className="hidden sm:inline">{isMuted ? 'Sound Off' : 'Sound On'}</span>
-          </button>
+        {/* CLOSE BUTTON TOP RIGHT */}
+        <button
+          onClick={handleEnter}
+          className="absolute top-3 right-3 p-1 bg-[#181328] border border-[#3e2e5c] text-[#cbd5e1] hover:text-white"
+          title="Close / Enter"
+        >
+          <X className="w-3.5 h-3.5" />
+        </button>
+
+        {/* PIXEL EMBLEM */}
+        <div className="mx-auto w-12 h-12 sm:w-14 sm:h-14 bg-[#291e45] border-2 border-[#f59e0b] shadow-[2px_2px_0_#451a03] flex items-center justify-center text-2xl sm:text-3xl animate-bounce">
+          🐒
         </div>
 
-        {/* PIXEL AVATAR / BIRTHDAY ICON */}
-        <div className="flex flex-col items-center justify-center pt-2">
-          <div className="relative">
-            <div className="w-20 h-20 bg-[#451a03] border-4 border-[#ffd285] flex items-center justify-center shadow-lg transform -rotate-1">
-              <span className="text-4xl">🐵</span>
-            </div>
-            <div className="absolute -top-3 -right-3 w-8 h-8 bg-[#881337] border-2 border-[#fb7185] flex items-center justify-center text-lg animate-bounce">
-              🎂
-            </div>
+        {/* TITLE & SUBTITLE */}
+        <div className="space-y-1">
+          <div className="inline-block px-2.5 py-0.5 bg-[#451a03] border border-[#f59e0b] text-[#ffd285] text-[10px] font-bold shadow-[1px_1px_0_#0a0814]">
+            CIVIL MONKEY LIVING CANVAS
           </div>
-        </div>
-
-        {/* TITLE & DEDICATION */}
-        <div className="space-y-3">
-          <h1 className="text-xl sm:text-2xl font-bold text-[#ffd285] tracking-wide uppercase">
-            DAS IST LEO, the civil monkey.
+          <h1 className="text-lg sm:text-xl md:text-2xl font-bold text-[#ffd285] uppercase tracking-wide drop-shadow-[0_1px_0_#451a03]">
+            Das ist Leo
           </h1>
-          
-          <div className="p-4 bg-[#100d1c] border-2 border-[#3e2e5c] text-stone-200 text-xs sm:text-sm leading-relaxed max-w-md mx-auto">
-            This is a collective birthday gift for <span className="text-[#ffd285] font-bold">LEO</span>, so he can open this canvas and feel hugged by a beautiful community that surrounds himself.
-          </div>
+          <p className="text-xs sm:text-[13px] text-[#cbd5e1] max-w-sm mx-auto leading-relaxed">
+            A collaborative constellation of stories, voice notes, and memories celebrating Leo and the ecosystem he weaves.
+          </p>
+        </div>
 
-          {memoriesCount > 0 ? (
-            <p className="text-[11px] text-[#34d399] font-bold flex items-center justify-center gap-1">
-              <Sparkles className="w-3.5 h-3.5 text-[#ffd285]" />
-              <span>{memoriesCount} birthday memories already planted!</span>
-            </p>
-          ) : (
-            <p className="text-[11px] text-[#94a3b8]">
-              Be among the first to drop a photo, note, or voice message for Leo!
-            </p>
-          )}
+        {/* 3 QUICK FEATURES PILLS */}
+        <div className="grid grid-cols-3 gap-2 py-1 text-[10px]">
+          <div className="p-2 bg-[#100d1c] border border-[#3e2e5c] space-y-0.5">
+            <Map className="w-3.5 h-3.5 text-[#f59e0b] mx-auto" />
+            <div className="font-bold text-[#ffd285]">Living Map</div>
+            <div className="text-[9px] text-[#94a3b8]">Freely pan & explore</div>
+          </div>
+          <div className="p-2 bg-[#100d1c] border border-[#3e2e5c] space-y-0.5">
+            <Heart className="w-3.5 h-3.5 text-[#f43f5e] mx-auto" />
+            <div className="font-bold text-[#ffd285]">Plant Stories</div>
+            <div className="text-[9px] text-[#94a3b8]">Photos, audio & letters</div>
+          </div>
+          <div className="p-2 bg-[#100d1c] border border-[#3e2e5c] space-y-0.5">
+            <Users className="w-3.5 h-3.5 text-[#34d399] mx-auto" />
+            <div className="font-bold text-[#ffd285]">Collective</div>
+            <div className="text-[9px] text-[#94a3b8]">Answer waves</div>
+          </div>
+        </div>
+
+        {/* ARTIZEN CAMPAIGN NOTICE */}
+        <div className="p-2.5 bg-[#451a03]/60 border border-[#f59e0b] text-left space-y-1">
+          <div className="flex items-center justify-between text-[10px] font-bold text-[#ffd285]">
+            <span className="flex items-center gap-1">
+              <Sparkles className="w-3 h-3 text-[#f59e0b] animate-pulse" />
+              <span>Civil Monkey Ecosystem Weaving</span>
+            </span>
+            <a
+              href="https://artizen.fund/index/p/civil-monkey-ecosystem-weaving?season=7"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-[#fde047] hover:underline flex items-center gap-0.5 text-[9px]"
+            >
+              <span>Artizen Season 7</span>
+              <ExternalLink className="w-2.5 h-2.5" />
+            </a>
+          </div>
+          <p className="text-[9px] sm:text-[10px] text-[#fef3c7] leading-tight">
+            Support and boost Leo’s ongoing cultural and social weaving project on Artizen Fund!
+          </p>
         </div>
 
         {/* ACTION BUTTONS */}
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
+        <div className="flex flex-col sm:flex-row gap-2 pt-1">
           <button
-            onClick={handleAddStoryDirect}
-            className="w-full sm:w-auto px-5 py-3 bg-[#10b981] hover:bg-[#34d399] text-[#022c22] font-bold text-xs flex items-center justify-center gap-2 border-2 border-[#a7f3d0] shadow-md transition-transform active:scale-95"
-          >
-            <PlusCircle className="w-4 h-4" />
-            <span>Plant a Memory for Leo</span>
-          </button>
-
-          <button
+            id="btn-enter-canvas"
             onClick={handleEnter}
-            className="w-full sm:w-auto px-5 py-3 bg-[#f59e0b] hover:bg-[#fbbf24] text-[#1c120c] font-bold text-xs flex items-center justify-center gap-2 border-2 border-[#ffd285] shadow-md transition-transform active:scale-95"
+            className="pixel-btn flex-1 py-2 bg-[#f59e0b] hover:bg-[#fbbf24] text-[#1c120c] font-bold text-xs sm:text-sm uppercase tracking-wider flex items-center justify-center gap-1.5 shadow-[0_3px_0_#451a03]"
           >
-            <span>Explore the Canvas</span>
-            <ArrowRight className="w-4 h-4" />
+            <Compass className="w-3.5 h-3.5" />
+            <span>Enter Living Canvas</span>
           </button>
-        </div>
 
-        {/* FOOTNOTE */}
-        <div className="pt-3 text-[10px] text-[#94a3b8] flex flex-col sm:flex-row items-center justify-center gap-1.5 border-t border-[#2d2144]">
-          <div className="flex items-center gap-1">
-            <Heart className="w-3 h-3 text-[#f43f5e] fill-current" />
-            <span>made with love by</span>
-          </div>
-          <a
-            href="https://artizen.fund/index/p/debolso?season=7"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-[#ffd285] hover:text-[#fbbf24] font-bold underline flex items-center gap-0.5"
-          >
-            <span>beca, from debolso</span>
-            <ExternalLink className="w-2.5 h-2.5 opacity-80" />
-          </a>
+          {onOpenAddStory && (
+            <button
+              onClick={handleAddStory}
+              className="pixel-btn px-3 py-2 bg-[#291e45] hover:bg-[#451a03] text-[#ffd285] font-bold text-xs flex items-center justify-center gap-1"
+            >
+              <Plus className="w-3.5 h-3.5" />
+              <span>+ Add Story</span>
+            </button>
+          )}
         </div>
 
       </div>

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Heart, Sparkles, Volume2, VolumeX, ExternalLink } from 'lucide-react';
 import { soundManager } from '../utils/audioHelper';
-import { triggerBirthdayConfetti } from '../utils/confettiHelper';
+import { triggerCelebrationConfetti } from '../utils/confettiHelper';
 
 interface FooterProps {
   isMuted: boolean;
@@ -18,7 +18,7 @@ export const Footer: React.FC<FooterProps> = ({
 }) => {
   const handleHeartClick = () => {
     soundManager.playLevelUpFanfare();
-    triggerBirthdayConfetti();
+    triggerCelebrationConfetti();
   };
 
   return (
@@ -42,7 +42,7 @@ export const Footer: React.FC<FooterProps> = ({
       <div className="flex items-center gap-3 text-[11px]">
         <button
           onClick={handleHeartClick}
-          title="Send birthday love & sparkles"
+          title="Send love & sparkles"
           className="flex items-center gap-1 px-2 py-0.5 bg-[#451a03] hover:bg-[#881337] border border-[#f59e0b] text-[#ffd285] hover:text-[#ffe4e6] text-[10px] font-bold transition-all active:scale-95 shadow-[1px_1px_0_#0a0814]"
         >
           <Heart className="w-3 h-3 text-[#f43f5e] fill-current animate-pulse" />
@@ -53,7 +53,7 @@ export const Footer: React.FC<FooterProps> = ({
           onClick={onOpenSplash}
           className="text-[#94a3b8] hover:text-[#ffd285] text-[10px] hidden sm:inline"
         >
-          About Leo's Gift
+          About this Canvas
         </button>
       </div>
 

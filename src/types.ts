@@ -53,3 +53,5 @@ export interface TagInfo {
 }
 
 export type CanvasViewMode = 'map' | 'collective' | 'tour';
+
+export type WeavingDiagramMode = 'decentralized' | 'centralized' | 'tag_clusters' | 'authors' | 'off';

@@ -56,7 +56,7 @@ export const ShareModal: React.FC<ShareModalProps> = ({
     const dataStr = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(exportPayload, null, 2));
     const downloadAnchor = document.createElement('a');
     downloadAnchor.setAttribute('href', dataStr);
-    downloadAnchor.setAttribute('download', `das-ist-leo-birthday-archive-${new Date().toISOString().slice(0, 10)}.json`);
+    downloadAnchor.setAttribute('download', `das-ist-leo-archive-${new Date().toISOString().slice(0, 10)}.json`);
     document.body.appendChild(downloadAnchor);
     downloadAnchor.click();
     downloadAnchor.remove();
@@ -188,7 +188,7 @@ export const ShareModal: React.FC<ShareModalProps> = ({
               <span>Invite template for group chat:</span>
             </div>
             <p className="text-[#fde047] italic text-[11px] bg-[#100d1c] p-2 border border-[#3e2e5c]">
-              “Hey everyone! For Leo’s birthday we created ‘Das ist Leo, the Civil Monkey’ — an interactive canvas where everyone can leave photos, voice notes, and stories for him! 🏔️✨ Take a minute to add yours here: {currentUrl}”
+              “Hey everyone! We created ‘Das ist Leo, the Civil Monkey’ — an interactive canvas where everyone can leave photos, voice notes, and stories for him! 🏔️✨ Take a minute to add yours here: {currentUrl}”
             </p>
           </div>
 

@@ -1,6 +1,6 @@
 {
   "name": "Das ist Leo, the Civil Monkey",
-  "description": "A collective birthday canvas of appreciation, photos, stories, and voice notes for Leo.",
+  "description": "A collective canvas of appreciation, photos, stories, and voice notes for Leo.",
   "requestFramePermissions": ["microphone"],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }
