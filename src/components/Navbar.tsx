@@ -9,7 +9,9 @@ import {
   Sparkles,
   Volume2,
   VolumeX,
-  HelpCircle
+  HelpCircle,
+  Cloud,
+  CloudCheck
 } from 'lucide-react';
 import { CanvasViewMode } from '../types';
 import { soundManager } from '../utils/audioHelper';
@@ -28,6 +30,7 @@ interface NavbarProps {
   selectedTag: string | null;
   onClearTag: () => void;
   totalMemoriesCount: number;
+  isCloudSynced?: boolean;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -43,6 +46,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   selectedTag,
   onClearTag,
   totalMemoriesCount,
+  isCloudSynced = true,
 }) => {
   const [crtMode, setCrtMode] = useState(false);
 
@@ -84,6 +88,12 @@ export const Navbar: React.FC<NavbarProps> = ({
               <span>Living canvas</span>
               <span className="text-[#f43f5e]">❤️</span>
               <span className="text-[#ffd285]">{totalMemoriesCount} {totalMemoriesCount === 1 ? 'story' : 'stories'}</span>
+              
+              {/* LIVE CLOUD SYNC BADGE */}
+              <span className="hidden sm:inline-flex items-center gap-0.5 text-[8px] text-[#34d399] bg-[#064e3b]/80 border border-[#059669] px-1 py-0.2">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#34d399] animate-pulse" />
+                <span>Live Sync</span>
+              </span>
             </div>
           </div>
         </div>

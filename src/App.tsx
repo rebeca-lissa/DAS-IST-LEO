@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { Navbar } from './components/Navbar';
 import { CanvasMap } from './components/CanvasMap';
 import { CollectiveWavesView } from './components/CollectiveWavesView';
@@ -12,13 +12,21 @@ import { INITIAL_MEMORIES, INITIAL_PROMPT_WAVES, INITIAL_TAGS } from './data/ini
 import { MemoryItem, PromptWave, TagInfo, CanvasViewMode } from './types';
 import { soundManager } from './utils/audioHelper';
 import { triggerCelebrationConfetti, triggerMiniSparkle } from './utils/confettiHelper';
+import { 
+  subscribeToMemories, 
+  subscribeToPrompts, 
+  saveMemoryToCloud, 
+  updateMemoryPositionInCloud, 
+  updateMemoryReactionsInCloud, 
+  savePromptToCloud 
+} from './lib/firebase';
 
 const STORAGE_MEMORIES_KEY = 'das_ist_leo_civil_monkey_memories_v2';
 const STORAGE_PROMPTS_KEY = 'das_ist_leo_civil_monkey_prompts_v2';
 const SESSION_SPLASH_SEEN_KEY = 'das_ist_leo_splash_seen_v2';
 
 export default function App() {
-  // State: Memories (starts blank unless user added items)
+  // State: Memories (starts with cached or initial data, synced via Firestore in real time)
   const [memories, setMemories] = useState<MemoryItem[]>(() => {
     try {
       const saved = localStorage.getItem(STORAGE_MEMORIES_KEY);
@@ -31,7 +39,7 @@ export default function App() {
     return INITIAL_MEMORIES;
   });
 
-  // State: Prompts (starts blank)
+  // State: Prompts
   const [prompts, setPrompts] = useState<PromptWave[]>(() => {
     try {
       const saved = localStorage.getItem(STORAGE_PROMPTS_KEY);
@@ -43,6 +51,8 @@ export default function App() {
     }
     return INITIAL_PROMPT_WAVES;
   });
+
+  const [isCloudSynced, setIsCloudSynced] = useState<boolean>(true);
 
   // Sound Mute State
   const [isMuted, setIsMuted] = useState<boolean>(() => soundManager.isMuted());
@@ -75,12 +85,57 @@ export default function App() {
     }
   };
 
-  // Save to LocalStorage
+  // REAL-TIME FIRESTORE SUBSCRIPTIONS
+  const isInitialSyncDone = useRef(false);
+
+  useEffect(() => {
+    const unsubscribeMemories = subscribeToMemories(
+      (cloudMemories) => {
+        setIsCloudSynced(true);
+        if (cloudMemories.length > 0) {
+          setMemories(cloudMemories);
+        } else if (!isInitialSyncDone.current) {
+          // If cloud is totally fresh and user had local memories, migrate them up to Firestore
+          try {
+            const localSaved = localStorage.getItem(STORAGE_MEMORIES_KEY);
+            if (localSaved) {
+              const parsed: MemoryItem[] = JSON.parse(localSaved);
+              if (parsed.length > 0) {
+                parsed.forEach((m) => saveMemoryToCloud(m).catch(() => {}));
+              }
+            }
+          } catch {
+            // ignore
+          }
+        }
+        isInitialSyncDone.current = true;
+      },
+      () => {
+        setIsCloudSynced(false);
+      }
+    );
+
+    const unsubscribePrompts = subscribeToPrompts(
+      (cloudPrompts) => {
+        if (cloudPrompts.length > 0) {
+          setPrompts(cloudPrompts);
+        }
+      },
+      () => {}
+    );
+
+    return () => {
+      unsubscribeMemories();
+      unsubscribePrompts();
+    };
+  }, []);
+
+  // Save to LocalStorage cache as backup
   useEffect(() => {
     try {
       localStorage.setItem(STORAGE_MEMORIES_KEY, JSON.stringify(memories));
     } catch {
-      // localStorage quota
+      // ignore
     }
   }, [memories]);
 
@@ -129,7 +184,7 @@ export default function App() {
   }, [memories]);
 
   // Handlers
-  const handleAddMemory = (newMemoryData: Omit<MemoryItem, 'id' | 'createdAt' | 'likes' | 'reactions'>) => {
+  const handleAddMemory = async (newMemoryData: Omit<MemoryItem, 'id' | 'createdAt' | 'likes' | 'reactions'>) => {
     const newMemory: MemoryItem = {
       ...newMemoryData,
       id: `mem-${Date.now()}`,
@@ -138,6 +193,7 @@ export default function App() {
       createdAt: new Date().toISOString().slice(0, 10),
     };
 
+    // Optimistic local update
     setMemories((prev) => [newMemory, ...prev]);
     setSelectedMemory(newMemory);
     setCurrentMode('map');
@@ -145,9 +201,16 @@ export default function App() {
     // Celebratory effects on planting a memory!
     soundManager.playLevelUpFanfare();
     triggerCelebrationConfetti();
+
+    // Persist to Firebase Firestore
+    try {
+      await saveMemoryToCloud(newMemory);
+    } catch (err) {
+      console.warn('Failed to sync memory to cloud:', err);
+    }
   };
 
-  const handleAddNewPrompt = (newPromptData: Omit<PromptWave, 'id' | 'createdAt' | 'responsesCount'>) => {
+  const handleAddNewPrompt = async (newPromptData: Omit<PromptWave, 'id' | 'createdAt' | 'responsesCount'>) => {
     const newPrompt: PromptWave = {
       ...newPromptData,
       id: `prompt-${Date.now()}`,
@@ -157,9 +220,18 @@ export default function App() {
     setPrompts((prev) => [newPrompt, ...prev]);
     soundManager.playMemoryChime(1.3);
     triggerMiniSparkle(0.5, 0.5);
+
+    try {
+      await savePromptToCloud(newPrompt);
+    } catch (err) {
+      console.warn('Failed to sync prompt to cloud:', err);
+    }
   };
 
   const handleToggleReaction = (memoryId: string, emoji: string) => {
+    let targetReactions: MemoryItem['reactions'] = [];
+    let targetLikes = 1;
+
     setMemories((prev) =>
       prev.map((m) => {
         if (m.id !== memoryId) return m;
@@ -182,6 +254,8 @@ export default function App() {
           triggerMiniSparkle(0.5, 0.5);
         }
 
+        targetReactions = updatedReactions;
+        targetLikes = m.likes;
         return { ...m, reactions: updatedReactions };
       })
     );
@@ -207,22 +281,50 @@ export default function App() {
         return { ...prev, reactions: updatedReactions };
       });
     }
+
+    // Sync to Firestore in background
+    updateMemoryReactionsInCloud(memoryId, targetReactions, targetLikes).catch(() => {});
   };
 
   const handleLike = (memoryId: string) => {
+    let targetReactions: MemoryItem['reactions'] = [];
+    let newLikes = 1;
+
     setMemories((prev) =>
-      prev.map((m) => (m.id === memoryId ? { ...m, likes: m.likes + 1 } : m))
+      prev.map((m) => {
+        if (m.id === memoryId) {
+          newLikes = m.likes + 1;
+          targetReactions = m.reactions;
+          return { ...m, likes: newLikes };
+        }
+        return m;
+      })
     );
+
     if (selectedMemory && selectedMemory.id === memoryId) {
       setSelectedMemory((prev) => (prev ? { ...prev, likes: prev.likes + 1 } : null));
     }
     triggerMiniSparkle(0.5, 0.5);
+
+    // Sync to Firestore in background
+    updateMemoryReactionsInCloud(memoryId, targetReactions, newLikes).catch(() => {});
   };
+
+  // Debounced cloud update for memory position on drag
+  const posUpdateTimerRef = useRef<Record<string, number>>({});
 
   const handleUpdateMemoryPosition = (id: string, newPos: { x: number; y: number }) => {
     setMemories((prev) =>
       prev.map((m) => (m.id === id ? { ...m, position: { ...m.position, ...newPos } } : m))
     );
+
+    // Debounce Firestore write so we don't send dozens of updates per second while dragging
+    if (posUpdateTimerRef.current[id]) {
+      window.clearTimeout(posUpdateTimerRef.current[id]);
+    }
+    posUpdateTimerRef.current[id] = window.setTimeout(() => {
+      updateMemoryPositionInCloud(id, newPos).catch(() => {});
+    }, 600);
   };
 
   const handleTagClick = (tag: string) => {
@@ -238,9 +340,11 @@ export default function App() {
   const handleImportData = (data: { memories: MemoryItem[]; prompts: PromptWave[] }) => {
     if (data.memories) {
       setMemories(data.memories);
+      data.memories.forEach((m) => saveMemoryToCloud(m).catch(() => {}));
     }
     if (data.prompts) {
       setPrompts(data.prompts);
+      data.prompts.forEach((p) => savePromptToCloud(p).catch(() => {}));
     }
   };
 
@@ -265,6 +369,7 @@ export default function App() {
         selectedTag={selectedTag}
         onClearTag={() => setSelectedTag(null)}
         totalMemoriesCount={memories.length}
+        isCloudSynced={isCloudSynced}
       />
 
       {/* MAIN VIEWPORT */}
@@ -305,6 +410,7 @@ export default function App() {
         {currentMode === 'tour' && (
           <LeoCinemaTour
             memories={memories}
+            isOpen={true}
             onClose={() => setCurrentMode('map')}
             onSelectMemory={(m) => setSelectedMemory(m)}
             onOpenAddStory={() => setIsAddModalOpen(true)}

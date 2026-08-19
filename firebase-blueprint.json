@@ -1,0 +1,77 @@
+{
+  "entities": {
+    "Memory": {
+      "title": "Memory",
+      "description": "A living story, voice note, letter, or photo contributed by friends for Leo",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Unique memory ID" },
+        "type": { "type": "string", "description": "Type: polaroid, audio, letter, quote, sticky" },
+        "title": { "type": "string", "description": "Story caption or title" },
+        "content": { "type": "string", "description": "Body text or transcribed message" },
+        "author": { "type": "string", "description": "Name of author" },
+        "authorRelation": { "type": "string", "description": "Relationship to Leo" },
+        "authorAvatar": { "type": "string", "description": "Optional author avatar URL" },
+        "date": { "type": "string", "description": "Year or date of memory" },
+        "location": { "type": "string", "description": "City or place of memory" },
+        "mediaUrl": { "type": "string", "description": "Image data URL or hosted URL" },
+        "audioUrl": { "type": "string", "description": "Audio data URL or hosted voice note" },
+        "audioDuration": { "type": "number", "description": "Audio length in seconds" },
+        "tags": { 
+          "type": "array", 
+          "items": { "type": "string" },
+          "description": "Constellation and topic tags" 
+        },
+        "promptId": { "type": "string", "description": "Associated Prompt Wave ID" },
+        "position": { 
+          "type": "object",
+          "properties": {
+            "x": { "type": "number" },
+            "y": { "type": "number" },
+            "rotation": { "type": "number" }
+          },
+          "description": "Canvas coordinates"
+        },
+        "likes": { "type": "number", "description": "Total heart likes" },
+        "reactions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "emoji": { "type": "string" },
+              "count": { "type": "number" }
+            }
+          },
+          "description": "Emoji reactions"
+        },
+        "createdAt": { "type": "string", "description": "ISO timestamp" }
+      },
+      "required": ["id", "type", "content", "author", "tags", "position", "likes", "createdAt"]
+    },
+    "PromptWave": {
+      "title": "PromptWave",
+      "description": "Collective question or prompt created for community responses",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Unique prompt ID" },
+        "question": { "type": "string", "description": "The question prompt" },
+        "creator": { "type": "string", "description": "Creator of the question" },
+        "tag": { "type": "string", "description": "Theme tag e.g. #CivilMonkey" },
+        "color": { "type": "string", "description": "Hex color code" },
+        "createdAt": { "type": "string", "description": "ISO timestamp" },
+        "responsesCount": { "type": "number", "description": "Total answers count" }
+      },
+      "required": ["id", "question", "creator", "tag", "color", "createdAt"]
+    }
+  },
+  "firestore": {
+    "memories": {
+      "entity": "Memory",
+      "description": "Real-time collaborative collection of all living canvas memories and stories"
+    },
+    "prompts": {
+      "entity": "PromptWave",
+      "description": "Real-time collaborative collection of collective questions and prompt waves"
+    }
+  }
+}

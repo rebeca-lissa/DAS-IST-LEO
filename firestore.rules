@@ -1,0 +1,21 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Living Canvas Memories Collection: public collaborative reads & contributions
+    match /memories/{memoryId} {
+      allow read: if true;
+      allow create, update: if request.resource.data.content is string
+                            && request.resource.data.author is string;
+      allow delete: if false;
+    }
+
+    // Collective Prompts Collection: public collaborative reads & contributions
+    match /prompts/{promptId} {
+      allow read: if true;
+      allow create, update: if request.resource.data.question is string
+                            && request.resource.data.creator is string;
+      allow delete: if false;
+    }
+  }
+}
