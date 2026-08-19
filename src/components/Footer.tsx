@@ -23,17 +23,17 @@ export const Footer: React.FC<FooterProps> = ({
 
   return (
     <footer className="relative z-30 w-full bg-[#120e20]/95 border-t-2 border-[#2f2347] px-4 py-2 flex flex-wrap items-center justify-between gap-2 select-none font-pixel text-xs text-[#cbd5e1] shadow-[0_-4px_0_#0a0814]">
-      {/* LEFT: MADE WITH LOVE OF PROTOTYPES BY BECA, FROM DEBOLSO */}
+      {/* LEFT: MADE WITH LOVE BY BECA, FROM DEBOLSO */}
       <div className="flex items-center gap-1.5 text-[11px]">
-        <span>made with love of prototypes by</span>
+        <span>made with love by</span>
         <a
           href="https://artizen.fund/index/p/debolso?season=7"
           target="_blank"
           rel="noopener noreferrer"
-          title="Debolso on Artizen"
+          title="debolso"
           className="text-[#ffd285] hover:text-[#fbbf24] font-bold underline decoration-dotted decoration-[#f59e0b] hover:decoration-solid flex items-center gap-1 transition-colors"
         >
-          <span>beca, from Debolso</span>
+          <span>beca, from debolso</span>
           <ExternalLink className="w-2.5 h-2.5 opacity-70" />
         </a>
       </div>

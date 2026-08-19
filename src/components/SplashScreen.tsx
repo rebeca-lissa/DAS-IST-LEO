@@ -108,7 +108,7 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({
         <div className="pt-3 text-[10px] text-[#94a3b8] flex flex-col sm:flex-row items-center justify-center gap-1.5 border-t border-[#2d2144]">
           <div className="flex items-center gap-1">
             <Heart className="w-3 h-3 text-[#f43f5e] fill-current" />
-            <span>made with love of prototypes by</span>
+            <span>made with love by</span>
           </div>
           <a
             href="https://artizen.fund/index/p/debolso?season=7"
@@ -116,7 +116,7 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({
             rel="noopener noreferrer"
             className="text-[#ffd285] hover:text-[#fbbf24] font-bold underline flex items-center gap-0.5"
           >
-            <span>beca, from Debolso</span>
+            <span>beca, from debolso</span>
             <ExternalLink className="w-2.5 h-2.5 opacity-80" />
           </a>
         </div>
